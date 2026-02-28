@@ -1,0 +1,85 @@
+node -v
+npx tsc --version
+npm list --depth=0
+```
+
+---
+
+## Estructura final de carpetas
+```
+restaurante-backend/
+├── src/
+│   ├── domain/
+│   │   ├── entities/
+│   │   │   ├── Usuario.ts
+│   │   │   ├── Mesa.ts
+│   │   │   ├── Reserva.ts
+│   │   │   └── Configuracion.ts
+│   │   └── ports/
+│   │       ├── IUsuarioRepository.ts
+│   │       ├── IMesaRepository.ts
+│   │       ├── IReservaRepository.ts
+│   │       └── IConfiguracionRepository.ts
+│   │
+│   ├── application/
+│   │   ├── auth/
+│   │   │   ├── RegistrarUsuario.ts
+│   │   │   ├── LoginUsuario.ts
+│   │   │   └── LogoutUsuario.ts
+│   │   ├── reservas/
+│   │   │   ├── CrearReserva.ts
+│   │   │   ├── ObtenerReservas.ts
+│   │   │   ├── ObtenerReservaPorId.ts
+│   │   │   ├── ActualizarReserva.ts
+│   │   │   └── CancelarReserva.ts
+│   │   ├── mesas/
+│   │   │   ├── CrearMesa.ts
+│   │   │   ├── ObtenerMesas.ts
+│   │   │   ├── ActualizarMesa.ts
+│   │   │   └── EliminarMesa.ts
+│   │   └── configuracion/
+│   │       ├── ObtenerConfiguracion.ts
+│   │       └── ActualizarConfiguracion.ts
+│   │
+│   ├── infrastructure/
+│   │   ├── config/
+│   │   │   └── config.ts
+│   │   ├── db/
+│   │   │   └── connection.ts
+│   │   ├── repositories/
+│   │   │   ├── MysqlUsuarioRepository.ts
+│   │   │   ├── MysqlMesaRepository.ts
+│   │   │   ├── MysqlReservaRepository.ts
+│   │   │   └── MysqlConfiguracionRepository.ts
+│   │   ├── adapters/
+│   │   │   └── CalendarioAdapter.ts
+│   │   └── http/
+│   │       ├── controllers/
+│   │       │   ├── AuthController.ts
+│   │       │   ├── ReservaController.ts
+│   │       │   ├── MesaController.ts
+│   │       │   └── ConfiguracionController.ts
+│   │       ├── routes/
+│   │       │   ├── auth.routes.ts
+│   │       │   ├── reservas.routes.ts
+│   │       │   ├── mesas.routes.ts
+│   │       │   └── configuracion.routes.ts
+│   │       └── middlewares/
+│   │           ├── autenticacion.middleware.ts
+│   │           └── autorizacion.middleware.ts
+│   │
+│   ├── tests/
+│   │   ├── unit/
+│   │   │   ├── CrearReserva.test.ts
+│   │   │   ├── CancelarReserva.test.ts
+│   │   │   └── LoginUsuario.test.ts
+│   │   └── integration/
+│   │       ├── reservas.integration.test.ts
+│   │       └── auth.integration.test.ts
+│   │
+│   ├── app.ts
+│   └── server.ts
+│
+├── jest.config.json
+├── tsconfig.json
+└── package.json
