@@ -25,7 +25,7 @@ const mesa :Mesa ={
     capacidad : datos.capacidad,
     ubicacion:datos.ubicacion,
     forma: datos.forma,
-    estado: 'Disponible'
+    estado: Estadomesa.Disponible
 }
 return await this.repoMesa.crear(mesa);
 

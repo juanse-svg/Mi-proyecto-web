@@ -2,6 +2,8 @@ import { InterfazReserva } from "../../dominio/Puertos/InterfazReserva";
 import { InterfazMesa } from "../../dominio/Puertos/InterfazMesa";
 import { Reserva } from "../../dominio/entidades/Reserva";
 import { config } from "../../infraestructura/config/config";
+import EstadoReserva from "../../dominio/Enum/EstadoReserva";
+
 
 export class CrearReserva{
 constructor (
@@ -82,7 +84,7 @@ const reserva: Reserva ={
     hora_inicio:datos.hora_inicio,
     hora_fin,
     num_comensales:datos.numero_comensales,
-    estado:'Pendiente',
+    estado: EstadoReserva.Pendiente ,
 
 }
 return await this.repoReserva.crear(reserva);
@@ -94,7 +96,7 @@ private calcularHoraFin (hora_inicio:string,duracion_min:number): string{
     const totalMin= h*60 +m+duracion_min;
     const hFin=Math.floor(totalMin/60).toString().padStart(2,'0');
     const mFin=Math.floor(totalMin%60).toString().padStart(2,'0');
-    return '${hFin}:${mFin}:00';
+    return `${hFin}:${mFin}:00`;
 
 }
 

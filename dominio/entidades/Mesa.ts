@@ -5,9 +5,9 @@ export interface Mesa{
 id?:number,
 numero:number,
 capacidad: number,
-ubicacion:string,
+ubicacion?:string,
 forma:FormaMesa,
 estado:Estadomesa,
-creada_a_las:string,
-actualizada_a_las:string
+creada_a_las?:string,
+actualizada_a_las?:string
 }
