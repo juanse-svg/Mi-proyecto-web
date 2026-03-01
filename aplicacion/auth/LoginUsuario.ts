@@ -1,6 +1,7 @@
-import { InterfazUsuario } from "../../dominio/Puertos/InterfazUsuario";
+import {InterfazUsuario} from '../../dominio/Puertos/InterfazUsuario';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import { config } from '../../infraestructura/config/config';
 
 
 export class LoginUsuario{
@@ -22,6 +23,11 @@ const usuario=await this.repoUsuario.obtenerPorEmail(datos.email.toLowerCase().t
 if (!usuario){
     throw new Error ('Credenciales incorrectas')
 
+}
+
+const passwordValida = await bcrypt.compare(datos.contraseña, usuario.contraseña);
+if (!passwordValida) {
+  throw new Error('Credenciales incorrectas');
 }
 const token =jwt.sign(
     {

@@ -1,7 +1,7 @@
 import { InterfazReserva } from "../../dominio/Puertos/InterfazReserva";
 import { InterfazMesa } from "../../dominio/Puertos/InterfazMesa";
 import { Reserva } from "../../dominio/entidades/Reserva";
-
+import { config } from "../../infraestructura/config/config";
 
 export class CrearReserva{
 constructor (
