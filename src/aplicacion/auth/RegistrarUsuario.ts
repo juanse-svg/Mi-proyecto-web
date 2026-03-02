@@ -4,7 +4,7 @@ import { Usuario } from "../../dominio/entidades/Usuario";
 import bcrypt from 'bcrypt';
 
 
-export class Registrarusaurio{
+export class RegistrarUsuario{
     constructor( private repoUsuario:InterfazUsuario){    }
 
 async ejecutar(datos:{
@@ -40,7 +40,8 @@ const usuario:Usuario ={
     email: datos.email.toLowerCase().trim(),
     contraseña: hash,
     telefono: datos.telefono,
-    rol:'cliente'
+    rol:RolUsuario.Cliente,
+    creada_a_las:''
 };
 
 const creado =await this.repoUsuario.crear(usuario);
