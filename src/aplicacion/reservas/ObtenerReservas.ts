@@ -1,10 +1,10 @@
-import { InterfazReserva } from "../../dominio/Puertos/InterfazReserva";
-import { FiltroReserva } from "../../dominio/Puertos/InterfazReserva";
+import { InterfazReserva,FiltroReserva } from "../../dominio/Puertos/InterfazReserva";
+
 import { Reserva } from "../../dominio/entidades/Reserva";
 
 
 export class ObtenerReservas{
-    constructor(private repoReserva:InterfazReserva){}
+    constructor(readonly repoReserva:InterfazReserva){}
 
 async ejecutar(filtro: FiltroReserva): Promise <{datos:Reserva[];total:number;pagina:number;limite:number}>{
 

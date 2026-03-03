@@ -2,7 +2,7 @@ import { InterfazMesa } from "../../dominio/Puertos/InterfazMesa";
 
 
 export class EliminarMesa{
-    constructor(private repoMesa:InterfazMesa){}
+    constructor(readonly repoMesa:InterfazMesa){}
 
     async ejecutar (id:number): Promise <{mensaje:string}>{
 if(!id || id <= 0){

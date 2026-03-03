@@ -1,7 +1,7 @@
 import { InterfazReserva } from "../../dominio/Puertos/InterfazReserva";
 
 export class CancelarReserva {
-    constructor (private repoReserva: InterfazReserva){}   
+    constructor (readonly repoReserva: InterfazReserva){}   
 
     async ejecutar (id:number, usuario_id:number, rol:string): Promise <{mensaje:string}>{
 if (!id || id <= 0){
@@ -27,7 +27,7 @@ if (rol === 'Cliente' && reserva.usuario_id !== usuario_id){
 
 if (rol === 'Cliente'){
     const ahora = new Date();
-    const fechaHoraReserva = new Date ('${reserva.fecha}-T${reserva.hora_inicio}');
+    const fechaHoraReserva = new Date (`${reserva.fecha}-T${reserva.hora_inicio}`);
     const diferenciaHoras = (fechaHoraReserva.getTime()- ahora.getTime()) / (1000*60*60);
 
 if (diferenciaHoras <24){

@@ -7,8 +7,8 @@ import EstadoReserva from "../../dominio/Enum/EstadoReserva";
 
 export class CrearReserva{
 constructor (
-    private repoReserva:InterfazReserva,
-    private repoMesa:InterfazMesa
+    readonly repoReserva:InterfazReserva,
+    readonly repoMesa:InterfazMesa
 ){}
 
 async ejecutar(datos: {

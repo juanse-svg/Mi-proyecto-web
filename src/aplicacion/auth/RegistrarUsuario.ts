@@ -5,7 +5,7 @@ import bcrypt from 'bcrypt';
 
 
 export class RegistrarUsuario{
-    constructor( private repoUsuario:InterfazUsuario){    }
+    constructor( readonly repoUsuario:InterfazUsuario){    }
 
 async ejecutar(datos:{
 nombre:string;

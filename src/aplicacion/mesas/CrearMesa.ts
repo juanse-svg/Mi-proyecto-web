@@ -4,7 +4,7 @@ import Estadomesa from "../../dominio/Enum/EstadoMesa";
 import FormaMesa from "../../dominio/Enum/FormaMesa";
 
 export class CrearMesa{
-    constructor (private repoMesa: InterfazMesa){}
+    constructor (readonly repoMesa: InterfazMesa){}
 
     async ejecutar (datos:{
         numero:number;

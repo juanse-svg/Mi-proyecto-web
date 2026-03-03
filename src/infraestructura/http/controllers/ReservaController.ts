@@ -8,11 +8,11 @@ import { CancelarReserva } from '../../../aplicacion/reservas/CancelarReserva';
 
 export class ReservaController {
     constructor(
-private crearReserva:CrearReserva,
-private obtenerReservas: ObtenerReservas,
-private obtenerReservaPorId: ObtenerReservaPorId,
-private actualizarReserva: ActualizarReserva,
-private cancelarReserva:CancelarReserva
+readonly crearReserva:CrearReserva,
+readonly obtenerReservas: ObtenerReservas,
+readonly obtenerReservaPorId: ObtenerReservaPorId,
+readonly actualizarReserva: ActualizarReserva,
+readonly cancelarReserva:CancelarReserva
  ){}
 
  crear = async (req:Request, res:Response): Promise <void> => {
@@ -79,15 +79,4 @@ cancelar = async (req:Request, res:Response): Promise <void>=> {
         res.status(400).json({mensaje: error.mensaje});
     }
 }
-
-
-
-
-
-
-
-
-
-
-
 }

@@ -1,14 +1,14 @@
 import { Request,Response } from "express";
-import { Registrarusaurio } from "../../../aplicacion/auth/RegistrarUsuario";
+import { RegistrarUsuario } from "../../../aplicacion/auth/RegistrarUsuario";
 import {LoginUsuario}from "../../../aplicacion/auth/LoginUsuario";
 import {LogoutUsuario}from "../../../aplicacion/auth/LogoutUsuario";
 
 
 export class AuthController {
     constructor(
-        private registrarUsuario: Registrarusaurio,
-        private loginUsuario: LoginUsuario,
-        private logoutUsuario:LogoutUsuario
+        readonly registrarUsuario: RegistrarUsuario,
+        readonly loginUsuario: LoginUsuario,
+        readonly logoutUsuario:LogoutUsuario
     ){}
 
 

@@ -5,7 +5,7 @@ import { config } from '../../infraestructura/config/config';
 
 
 export class LoginUsuario{
-    constructor (private repoUsuario:InterfazUsuario){}
+    constructor (readonly repoUsuario:InterfazUsuario){}
 
     async ejecutar(datos:{
 email:string;

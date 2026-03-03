@@ -2,7 +2,7 @@ import { InterfazMesa } from "../../dominio/Puertos/InterfazMesa";
 import { Mesa } from "../../dominio/entidades/Mesa";
 
 export class ActualizarMesa{
-    constructor(private repoMesa:InterfazMesa){}
+    constructor(readonly repoMesa:InterfazMesa){}
 
 async ejecutar(id:number,datos:Partial<Mesa>):Promise<Mesa>{
 

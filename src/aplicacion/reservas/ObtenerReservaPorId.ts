@@ -2,7 +2,7 @@ import { InterfazReserva } from "../../dominio/Puertos/InterfazReserva";
 import { Reserva } from "../../dominio/entidades/Reserva";
 
 export class ObtenerReservaPorId{
-    constructor(private repoReserva:InterfazReserva){}
+    constructor(readonly repoReserva:InterfazReserva){}
 
     async ejecutar (id:number): Promise<Reserva>{
         if (!id||id<=0){

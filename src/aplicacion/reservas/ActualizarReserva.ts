@@ -4,7 +4,7 @@ import EstadoReserva from "../../dominio/Enum/EstadoReserva";
 
 
 export class ActualizarReserva{
-    constructor (private repoReserva :InterfazReserva){}
+    constructor (readonly repoReserva :InterfazReserva){}
 
     async juntar (
         id:number,
