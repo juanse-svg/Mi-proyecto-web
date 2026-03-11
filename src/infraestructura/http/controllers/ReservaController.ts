@@ -25,10 +25,24 @@ readonly cancelarReserva:CancelarReserva
         res.status (201).json ({mensaje: 'Reserva creada con exito', reserva});
     
     } catch (error:any){
-        res.status(400).json({mensaje: error.mensaje});
+        res.status(400).json({mensaje: error.message});
     } 
  }
 
+misReservas = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const usuario = (req as any).usuario;
+
+    const reservas = await this.obtenerReservas.repoReserva.obtenerPorUsuario(usuario.id);
+
+    res.status(200).json(reservas);
+
+  } catch (error: any) {
+    res.status(400).json({ mensaje: error.message });
+  }
+};
+
+ 
  obtenerTodas = async (req:Request, res:Response): Promise <void> =>{
     try{
 const filtros = {
@@ -43,7 +57,7 @@ const filtros = {
 const resultado= await this.obtenerReservas.ejecutar(filtros);
 res.status(200).json(resultado);
     }catch (error: any){
-        res.status(400).json({mensaje : error.mensaje})
+        res.status(400).json({mensaje : error.message})
     }
  }
 
@@ -54,7 +68,7 @@ try {
     res.status(200).json(reserva);
 
 }catch (error:any){
-    res.status(404).json({mensaje:error.mensaje});
+    res.status(404).json({mensaje:error.message});
 }
  }
 
@@ -64,7 +78,7 @@ actualizar = async (req:Request, res: Response): Promise<void>=>{
         const reserva= await this.actualizarReserva.juntar(id, req.body);
         res.status(200).json({mensaje: 'Reserva actualizada con exito0', reserva})
     }catch (error:any){
-        res.status(400).json({mensaje: error.mensaje})
+        res.status(400).json({mensaje: error.message})
     }
 }
 
@@ -76,7 +90,7 @@ cancelar = async (req:Request, res:Response): Promise <void>=> {
     res.status(200).json(resultado);
     }
     catch ( error: any){
-        res.status(400).json({mensaje: error.mensaje});
+        res.status(400).json({mensaje: error.message});
     }
 }
 }

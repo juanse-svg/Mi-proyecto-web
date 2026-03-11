@@ -12,7 +12,7 @@ export interface TokenPay{
 export const autenticar = (req:Request, res:Response,next:NextFunction): void =>{
     const authHeader =req.headers['authorization'];
 
-    if (!authHeader || !authHeader.startsWith('Bearer')){
+    if (!authHeader || !authHeader.startsWith('Bearer ')){
         res.status(401).json({mensaje: 'Token no proporcionado'});
         return;
     }

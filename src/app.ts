@@ -1,5 +1,6 @@
 import express, { Application, Request, Response } from 'express';
-
+import path from 'path';
+import fs from 'fs';
 
 //Repositorios
 import {RepositorioMesaMysql} from './infraestructura/repositorios/RepositorioMesaMysql';
@@ -40,6 +41,42 @@ import { crearMesasRouter } from './infraestructura/http/rutas/mesas.rutas';
 
 const app: Application = express();
 app.use(express.json());
+
+
+app.get('/api/docs', (req: Request, res: Response) => {
+  res.send(`
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Restaurante API - Documentación</title>
+  <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css">
+</head>
+<body>
+  <div id="swagger-ui"></div>
+  <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+  <script>
+    SwaggerUIBundle({
+      url: '/api/docs/swagger.json',
+      dom_id: '#swagger-ui',
+      presets: [SwaggerUIBundle.presets.apis, SwaggerUIBundle.SwaggerUIStandalonePreset],
+      layout: 'BaseLayout',
+      deepLinking: true
+    });
+  </script>
+</body>
+</html>
+  `);
+});
+
+app.get('/api/docs/swagger.json', (req: Request, res: Response) => {
+  const swaggerPath = path.join(__dirname, 'infraestructura/http/swagger.json');
+  const swaggerDoc = JSON.parse(fs.readFileSync(swaggerPath, 'utf8'));
+  res.json(swaggerDoc);
+});
+
+
 
 //instanciamiento repositorios
 const usuarioRepo= new RepositorioUsuarioMysql();

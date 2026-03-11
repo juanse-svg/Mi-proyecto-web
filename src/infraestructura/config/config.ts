@@ -1,6 +1,6 @@
 export const config ={
 
-    port:3001,
+port:3000,
 
 db:{
 host: 'localhost',
@@ -11,7 +11,7 @@ database:'restaurante_db'
 },
 
 jwt: {
-    secret:'Clave_super_secreta',
+secret:'Clave_super_secreta',
 expiracion:'10h' as const
 },
 

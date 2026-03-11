@@ -17,7 +17,7 @@ export class AuthController {
             const usuario =await this.registrarUsuario.ejecutar(req.body);
             res.status(201).json({mensaje: 'Usuario resgistrado correctamente',usuario});
         } catch (error:any){
-            res.status(400).json({mensaje: error.mensaje})
+            res.status(400).json({mensaje: error.message})
         }
     };
 
@@ -26,7 +26,7 @@ login =async (req:Request, res:Response): Promise <void> => {
         const resultado =await this.loginUsuario.ejecutar(req.body);
         res.status(200).json(resultado);
     }catch (error:any){
-        res.status(401).json({mensaje: error.mensaje});
+        res.status(401).json({mensaje: error.message});
     }
     
 }

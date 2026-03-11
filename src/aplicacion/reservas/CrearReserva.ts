@@ -84,12 +84,17 @@ const reserva: Reserva ={
     hora_inicio:datos.hora_inicio,
     hora_fin,
     num_comensales:datos.numero_comensales,
-    estado: EstadoReserva.Pendiente ,
+    estado: EstadoReserva.Confirmada ,
 
 }
+
+
 return await this.repoReserva.crear(reserva);
 
+
 }
+
+
 
 private calcularHoraFin (hora_inicio:string,duracion_min:number): string{
     const [h, m]=hora_inicio.split(':').map(Number);

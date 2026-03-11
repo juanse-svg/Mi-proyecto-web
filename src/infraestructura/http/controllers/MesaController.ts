@@ -19,7 +19,7 @@ crear = async( req:Request,res:Response): Promise<void> =>{
         res.status(201).json({mensaje: 'Mesa creada con exito',mesa});
 
     } catch (error:any){
-        res.status(400).json({mensaje:error.mensaje})
+        res.status(400).json({mensaje:error.message})
     }
 }
 
@@ -28,7 +28,7 @@ obtenerTodas = async (req:Request,res:Response): Promise <void>=>{
         const mesas= await this.obtenerMesas.ejecutar();
         res.status(200).json(mesas);
     }catch(error:any){
-        res.status(400).json ({mensaje:error.mensaje})
+        res.status(400).json ({mensaje:error.message})
     }
 }
 
@@ -50,7 +50,7 @@ eliminar = async (req:Request, res:Response): Promise <void> =>{
             res.status(200).json(resultado)
         
     }catch (error:any){
-        res.status(400).json({mensaje:error.mensaje})
+        res.status(400).json({mensaje:error.message})
     }
 }
 

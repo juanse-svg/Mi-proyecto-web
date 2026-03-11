@@ -12,6 +12,11 @@ export const crearReservasRouter = (controller: ReservaController): Router => {
     controller.crear
   );
 
+  router.get('/mis',
+  autenticar,
+  autorizar('cliente'),
+  controller.misReservas
+);
   
   router.get('/',
     autenticar,

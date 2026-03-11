@@ -1,0 +1,866 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Sistema de Reservas para Restaurante",
+    "description": "API RESTful para gestión de reservas, mesas y usuarios. Implementada con Arquitectura Hexagonal (Puertos y Adaptadores).",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Backend Restaurante"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Servidor de desarrollo"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Auth",
+      "description": "Autenticación y gestión de sesiones"
+    },
+    {
+      "name": "Mesas",
+      "description": "Gestión de mesas del restaurante"
+    },
+    {
+      "name": "Reservas",
+      "description": "Gestión de reservas"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Token JWT obtenido en el login. Formato: Bearer <token>"
+      }
+    },
+    "schemas": {
+      "Usuario": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "nombre": {
+            "type": "string",
+            "example": "Carlos Cliente"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "carlos@test.com"
+          },
+          "telefono": {
+            "type": "string",
+            "example": "3001234567",
+            "nullable": true
+          },
+          "rol": {
+            "type": "string",
+            "enum": ["cliente", "host", "gerente"],
+            "example": "cliente"
+          },
+          "creada_a_las": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-03-10T12:00:00.000Z"
+          }
+        }
+      },
+      "Mesa": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "numero": {
+            "type": "integer",
+            "example": 1
+          },
+          "capacidad": {
+            "type": "integer",
+            "example": 4
+          },
+          "ubicacion": {
+            "type": "string",
+            "example": "Terraza",
+            "nullable": true
+          },
+          "forma": {
+            "type": "string",
+            "enum": ["cuadrada", "redonda"],
+            "example": "cuadrada"
+          },
+          "estado": {
+            "type": "string",
+            "enum": ["disponible", "reservada", "ocupada"],
+            "example": "disponible"
+          },
+          "creada_a_las": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-03-10T12:00:00.000Z"
+          },
+          "actualizada_a_las": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-03-10T12:00:00.000Z"
+          }
+        }
+      },
+      "Reserva": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "usuario_id": {
+            "type": "integer",
+            "example": 1
+          },
+          "mesa_id": {
+            "type": "integer",
+            "example": 1
+          },
+          "fecha": {
+            "type": "string",
+            "format": "date",
+            "example": "2026-03-20"
+          },
+          "hora_inicio": {
+            "type": "string",
+            "example": "19:00:00"
+          },
+          "hora_fin": {
+            "type": "string",
+            "example": "20:30:00"
+          },
+          "num_comensales": {
+            "type": "integer",
+            "example": 3
+          },
+          "estado": {
+            "type": "string",
+            "enum": ["pendiente", "confirmada", "cancelada", "completada", "no_show"],
+            "example": "pendiente"
+          },
+          "notas": {
+            "type": "string",
+            "example": "Celebración de cumpleaños",
+            "nullable": true
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "mensaje": {
+            "type": "string",
+            "example": "Mensaje de error descriptivo"
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/api/auth/registro": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Registrar nuevo usuario",
+        "description": "Crea un nuevo usuario con rol cliente por defecto. La contraseña se hashea con bcrypt.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["nombre", "email", "contraseña"],
+                "properties": {
+                  "nombre": {
+                    "type": "string",
+                    "example": "Carlos Cliente"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "carlos@test.com"
+                  },
+                  "contraseña": {
+                    "type": "string",
+                    "minLength": 6,
+                    "example": "123456"
+                  },
+                  "telefono": {
+                    "type": "string",
+                    "example": "3001234567"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Usuario registrado exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "mensaje": {
+                      "type": "string",
+                      "example": "Usuario registrado exitosamente"
+                    },
+                    "usuario": {
+                      "$ref": "#/components/schemas/Usuario"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos inválidos o email ya registrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "camposFaltantes": {
+                    "summary": "Campos obligatorios faltantes",
+                    "value": { "mensaje": "Nombre, email y contraseña son obligatorios" }
+                  },
+                  "emailDuplicado": {
+                    "summary": "Email ya registrado",
+                    "value": { "mensaje": "El email ya está registrado" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Iniciar sesión",
+        "description": "Autentica al usuario y retorna un token JWT válido por 8 horas.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "contraseña"],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "carlos@test.com"
+                  },
+                  "contraseña": {
+                    "type": "string",
+                    "example": "123456"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login exitoso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "mensaje": {
+                      "type": "string",
+                      "example": "Login exitoso"
+                    },
+                    "token": {
+                      "type": "string",
+                      "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                    },
+                    "usuario": {
+                      "$ref": "#/components/schemas/Usuario"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Campos faltantes",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" },
+                "example": { "mensaje": "Email y contraseña son obligatorios" }
+              }
+            }
+          },
+          "401": {
+            "description": "Credenciales incorrectas",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" },
+                "example": { "mensaje": "Credenciales incorrectas" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Cerrar sesión",
+        "description": "Logout stateless. El cliente debe eliminar el token. El servidor no invalida tokens porque JWT es stateless.",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Logout exitoso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "mensaje": {
+                      "type": "string",
+                      "example": "Sesión cerrada exitosamente"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token no proporcionado o inválido",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/mesas": {
+      "get": {
+        "tags": ["Mesas"],
+        "summary": "Obtener todas las mesas",
+        "description": "Retorna la lista completa de mesas. Accesible para cliente, host y gerente.",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Lista de mesas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "mesas": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Mesa" }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token no proporcionado o inválido",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Mesas"],
+        "summary": "Crear nueva mesa",
+        "description": "Crea una nueva mesa en el restaurante. Solo accesible para gerente.",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["numero", "capacidad", "forma"],
+                "properties": {
+                  "numero": {
+                    "type": "integer",
+                    "example": 1
+                  },
+                  "capacidad": {
+                    "type": "integer",
+                    "example": 4
+                  },
+                  "ubicacion": {
+                    "type": "string",
+                    "example": "Terraza"
+                  },
+                  "forma": {
+                    "type": "string",
+                    "enum": ["cuadrada", "redonda"],
+                    "example": "cuadrada"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Mesa creada exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "mensaje": {
+                      "type": "string",
+                      "example": "Mesa creada exitosamente"
+                    },
+                    "mesa": { "$ref": "#/components/schemas/Mesa" }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos inválidos",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          },
+          "401": {
+            "description": "Token no proporcionado o inválido",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          },
+          "403": {
+            "description": "Sin permisos. Solo gerente puede crear mesas.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" },
+                "example": { "mensaje": "No tienes permisos para realizar esta acción" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/mesas/{id}": {
+      "patch": {
+        "tags": ["Mesas"],
+        "summary": "Actualizar mesa",
+        "description": "Actualiza los datos de una mesa. Accesible para host y gerente.",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID de la mesa",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "capacidad": {
+                    "type": "integer",
+                    "example": 5
+                  },
+                  "ubicacion": {
+                    "type": "string",
+                    "example": "Terraza VIP"
+                  },
+                  "forma": {
+                    "type": "string",
+                    "enum": ["cuadrada", "redonda"]
+                  },
+                  "estado": {
+                    "type": "string",
+                    "enum": ["disponible", "reservada", "ocupada"]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Mesa actualizada exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "mensaje": { "type": "string", "example": "Mesa actualizada exitosamente" },
+                    "mesa": { "$ref": "#/components/schemas/Mesa" }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "description": "No autenticado", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "403": { "description": "Sin permisos", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "404": { "description": "Mesa no encontrada", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" }, "example": { "mensaje": "Mesa no encontrada" } } } }
+        }
+      },
+      "delete": {
+        "tags": ["Mesas"],
+        "summary": "Eliminar mesa",
+        "description": "Elimina una mesa del sistema. Solo accesible para gerente.",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID de la mesa a eliminar",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Mesa eliminada exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "mensaje": { "type": "string", "example": "Mesa eliminada exitosamente" }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "description": "No autenticado", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "403": { "description": "Sin permisos. Solo gerente.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "404": { "description": "Mesa no encontrada", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/api/reservas": {
+      "get": {
+        "tags": ["Reservas"],
+        "summary": "Obtener todas las reservas",
+        "description": "Retorna todas las reservas del sistema. Solo accesible para host y gerente.",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "fecha",
+            "in": "query",
+            "required": false,
+            "description": "Filtrar por fecha",
+            "schema": { "type": "string", "format": "date", "example": "2026-03-20" }
+          },
+          {
+            "name": "estado",
+            "in": "query",
+            "required": false,
+            "description": "Filtrar por estado",
+            "schema": { "type": "string", "enum": ["pendiente", "confirmada", "cancelada", "completada", "no_show"] }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de reservas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reservas": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Reserva" }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "description": "No autenticado", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "403": { "description": "Sin permisos. Solo host y gerente.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      },
+      "post": {
+        "tags": ["Reservas"],
+        "summary": "Crear nueva reserva",
+        "description": "Crea una reserva verificando disponibilidad de mesa, horario del restaurante y capacidad. La hora_fin se calcula automáticamente sumando 90 minutos a la hora_inicio.",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["mesa_id", "fecha", "hora_inicio", "num_comensales"],
+                "properties": {
+                  "mesa_id": { "type": "integer", "example": 1 },
+                  "fecha": { "type": "string", "format": "date", "example": "2026-03-20" },
+                  "hora_inicio": { "type": "string", "example": "19:00:00" },
+                  "num_comensales": { "type": "integer", "example": 3 },
+                  "notas": { "type": "string", "example": "Cumpleaños", "nullable": true }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Reserva creada exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "mensaje": { "type": "string", "example": "Reserva creada exitosamente" },
+                    "reserva": { "$ref": "#/components/schemas/Reserva" }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos inválidos o restricción de negocio",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" },
+                "examples": {
+                  "camposFaltantes": {
+                    "summary": "Campos obligatorios faltantes",
+                    "value": { "mensaje": "Todos los campos son obligatorios" }
+                  },
+                  "fueraHorario": {
+                    "summary": "Fuera del horario del restaurante",
+                    "value": { "mensaje": "La reserva está fuera del horario del restaurante" }
+                  },
+                  "capacidadExcedida": {
+                    "summary": "Supera capacidad de la mesa",
+                    "value": { "mensaje": "El número de comensales supera la capacidad de la mesa" }
+                  },
+                  "mesaNoDisponible": {
+                    "summary": "Mesa con conflicto de horario",
+                    "value": { "mensaje": "La mesa no está disponible en ese horario" }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "description": "No autenticado", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "404": { "description": "Mesa no encontrada", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/api/reservas/mis-reservas": {
+      "get": {
+        "tags": ["Reservas"],
+        "summary": "Obtener mis reservas",
+        "description": "Retorna únicamente las reservas del usuario autenticado. Accesible para cliente, host y gerente.",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Lista de reservas del usuario",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reservas": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Reserva" }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "description": "No autenticado", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/api/reservas/{id}": {
+      "get": {
+        "tags": ["Reservas"],
+        "summary": "Obtener reserva por ID",
+        "description": "Retorna el detalle de una reserva específica. Solo accesible para host y gerente.",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID de la reserva",
+            "schema": { "type": "integer", "example": 1 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalle de la reserva",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reserva": { "$ref": "#/components/schemas/Reserva" }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "description": "No autenticado", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "403": { "description": "Sin permisos", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "404": { "description": "Reserva no encontrada", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" }, "example": { "mensaje": "Reserva no encontrada" } } } }
+        }
+      },
+      "patch": {
+        "tags": ["Reservas"],
+        "summary": "Actualizar reserva",
+        "description": "Actualiza el estado o notas de una reserva. Solo accesible para host y gerente.",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID de la reserva",
+            "schema": { "type": "integer", "example": 1 }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "estado": {
+                    "type": "string",
+                    "enum": ["pendiente", "confirmada", "completada", "no_show"],
+                    "example": "confirmada"
+                  },
+                  "notas": {
+                    "type": "string",
+                    "example": "Mesa confirmada para cumpleaños"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Reserva actualizada exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "mensaje": { "type": "string", "example": "Reserva actualizada exitosamente" },
+                    "reserva": { "$ref": "#/components/schemas/Reserva" }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "description": "No autenticado", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "403": { "description": "Sin permisos", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "404": { "description": "Reserva no encontrada", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/api/reservas/{id}/cancelar": {
+      "patch": {
+        "tags": ["Reservas"],
+        "summary": "Cancelar reserva",
+        "description": "Cancela una reserva. El cliente solo puede cancelar sus propias reservas con al menos 24 horas de antelación. Host y gerente pueden cancelar cualquier reserva sin restricción de tiempo.",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID de la reserva a cancelar",
+            "schema": { "type": "integer", "example": 1 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Reserva cancelada exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "mensaje": { "type": "string", "example": "Reserva cancelada exitosamente" },
+                    "reserva": { "$ref": "#/components/schemas/Reserva" }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "No se puede cancelar",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" },
+                "examples": {
+                  "yaCancelada": {
+                    "summary": "Reserva ya cancelada",
+                    "value": { "mensaje": "La reserva ya está cancelada" }
+                  },
+                  "menosde24h": {
+                    "summary": "Menos de 24 horas de antelación",
+                    "value": { "mensaje": "No se puede cancelar con menos de 24 horas de antelación" }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "description": "No autenticado", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "403": {
+            "description": "Sin permisos. El cliente intenta cancelar una reserva que no es suya.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" },
+                "example": { "mensaje": "No tienes permisos para cancelar esta reserva" }
+              }
+            }
+          },
+          "404": { "description": "Reserva no encontrada", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    }
+  }
+}

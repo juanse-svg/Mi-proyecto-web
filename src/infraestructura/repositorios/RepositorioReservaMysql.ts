@@ -31,34 +31,55 @@ async obtenerPorId(id: number): Promise<Reserva | null> {
     return rows[0]as Reserva;
 }
 
-async obtenerTodas(flitros: FiltroReserva): Promise<{ datos: Reserva[]; total: number; }> {
-    const condiciones : string[] = [];
-    const valores : (string | number)[]=[];
+async obtenerTodas(filtros: FiltroReserva = {} as FiltroReserva): Promise<{ datos: Reserva[]; total: number }> {
 
-if (flitros.usuario_id){condiciones.push('usuario_id= ?'); valores.push(flitros.usuario_id);}
-if (flitros.mesa_id){condiciones.push('mesa_id= ?'); valores.push(flitros.mesa_id);}
-if (flitros.fecha){condiciones.push('fecha= ?'); valores.push(flitros.fecha);}
-if (flitros.estado){condiciones.push('estado= ?'); valores.push(flitros.estado);}
+  const condiciones: string[] = [];
+  const valores: any[] = [];
 
-const where =condiciones.length > 0 ? `WHERE ${condiciones.join(' AND ')}` : '';
+  if (filtros.usuario_id !== undefined) {
+    condiciones.push("usuario_id = ?");
+    valores.push(Number(filtros.usuario_id));
+  }
 
-const pagina =flitros.pagina ?? 1;
-const limite = flitros.limite ??10;
-const offset = (pagina -1) *limite;
+  if (filtros.mesa_id !== undefined) {
+    condiciones.push("mesa_id = ?");
+    valores.push(Number(filtros.mesa_id));
+  }
 
-const [countRows] = await pool.execute<RowDataPacket []>(
-`SELECT COUNT(*) as total FROM reservas ${where}`,
-valores
-);
-const total = (countRows[0]as {total : number}).total;
+  if (filtros.fecha !== undefined) {
+    condiciones.push("fecha = ?");
+    valores.push(filtros.fecha);
+  }
 
-const [rows] = await pool.execute<RowDataPacket[]>(
+  if (filtros.estado !== undefined) {
+    condiciones.push("estado = ?");
+    valores.push(filtros.estado);
+  }
+
+  const where = condiciones.length > 0 ? `WHERE ${condiciones.join(" AND ")}` : "";
+
+  const pagina = Number(filtros.pagina) || 1;
+  const limite = Number(filtros.limite) || 10;
+  const offset = (pagina - 1) * limite;
+
+  const [countRows] = await pool.execute<RowDataPacket[]>(
+    `SELECT COUNT(*) as total FROM reservas ${where}`,
+    valores
+  );
+
+  const total = (countRows[0] as { total: number }).total;
+
+  const params = [...valores, limite, offset];
+
+  const [rows] = await pool.execute<RowDataPacket[]>(
     `SELECT * FROM reservas ${where} ORDER BY fecha ASC, hora_inicio ASC LIMIT ? OFFSET ?`,
-[...valores, limite, offset]
+    params
+  );
 
-
-);
-return {datos:rows as Reserva[], total};
+  return {
+    datos: rows as Reserva[],
+    total
+  };
 }
 
 async verificarDisponible(mesa_id: number, fecha: string, hora_inicio: string, hora_fin: string): Promise<boolean> {

@@ -5,7 +5,7 @@ import { RowDataPacket,ResultSetHeader } from 'mysql2';
 
 export class RepositorioMesaMysql implements InterfazMesa{
     async crear(mesa:Mesa): Promise <Mesa> {
-        const sql = 'insert into mesas (numero, capacidad, ubicacion, forma, estado) values (?,?,?,?,?';
+        const sql = 'insert into mesas (numero, capacidad, ubicacion, forma, estado) values (?,?,?,?,?)';
 
         const [result] =await pool.execute<ResultSetHeader>(sql,[
 
@@ -68,7 +68,7 @@ async actualizar(id: number, datos: Partial<Mesa>): Promise<Mesa | null> {
 
 if(campos.length === 0 ) return await this.obtenerPorId(id);
 
-valores.push.apply(id);
+valores.push(id);
 await pool.execute<ResultSetHeader>(
     `UPDATE mesas SET ${campos.join(', ')} WHERE id = ?`,
     valores
