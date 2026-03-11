@@ -18,6 +18,8 @@ import { ObtenerReservas } from './aplicacion/reservas/ObtenerReservas';
 import { ObtenerReservaPorId } from './aplicacion/reservas/ObtenerReservaPorId';
 import { ActualizarReserva } from './aplicacion/reservas/ActualizarReserva';
 import { CancelarReserva } from './aplicacion/reservas/CancelarReserva';
+import { GenerarReporte } from './aplicacion/reportes/GenerarReporte';  
+
 
 //casos de uso mesas
 import { CrearMesa } from './aplicacion/mesas/CrearMesa';
@@ -29,12 +31,12 @@ import { EliminarMesa } from './aplicacion/mesas/EliminarMesa';
 import { AuthController } from './infraestructura/http/controllers/AuthController';
 import { ReservaController } from './infraestructura/http/controllers/ReservaController';
 import { MesaController} from './infraestructura/http/controllers/MesaController';
-
+import { ReporteController } from './infraestructura/http/controllers/ReporteController';  
 //rutas
 import { crearAuthRouter } from './infraestructura/http/rutas/auth.rutas';
 import { crearReservasRouter } from './infraestructura/http/rutas/reservas.rutas';
 import { crearMesasRouter } from './infraestructura/http/rutas/mesas.rutas';
-
+import { crearReportesRouter } from './infraestructura/http/rutas/reportes.rutas';  
 
 
 
@@ -101,16 +103,22 @@ const obtenerMesas = new ObtenerMesas(mesaRepo);
 const actualizarMesa = new ActualizarMesa(mesaRepo);
 const eliminarMesa = new EliminarMesa(mesaRepo);
 
+//reportes
+const generarReporte = new GenerarReporte(reservaRepo, mesaRepo);  
+
+
 //casos de uso controladores
 const authController    = new AuthController(registrarUsuario, loginUsuario, logoutUsuario);
 const reservaController = new ReservaController(crearReserva, obtenerReservas, obtenerReservaPorId, actualizarReserva, cancelarReserva);
 const mesaController    = new MesaController(crearMesa, obtenerMesas, actualizarMesa, eliminarMesa);
+const reporteController = new ReporteController(generarReporte); 
 
 
 //rutas
 app.use('/api/auth', crearAuthRouter(authController));
 app.use('/api/reservas', crearReservasRouter(reservaController));
 app.use('/api/mesas', crearMesasRouter(mesaController));
+app.use('/api/reportes', crearReportesRouter(reporteController));
 
 app.get('/', (req:Request,res:Response)=>{
     res.json ({mensaje: 'Api funcional'});

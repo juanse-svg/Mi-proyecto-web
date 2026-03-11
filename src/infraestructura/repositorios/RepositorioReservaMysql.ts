@@ -61,6 +61,7 @@ async obtenerTodas(filtros: FiltroReserva = {} as FiltroReserva): Promise<{ dato
   const pagina = Number(filtros.pagina) || 1;
   const limite = Number(filtros.limite) || 10;
   const offset = (pagina - 1) * limite;
+ 
 
   const [countRows] = await pool.execute<RowDataPacket[]>(
     `SELECT COUNT(*) as total FROM reservas ${where}`,
@@ -69,12 +70,13 @@ async obtenerTodas(filtros: FiltroReserva = {} as FiltroReserva): Promise<{ dato
 
   const total = (countRows[0] as { total: number }).total;
 
-  const params = [...valores, limite, offset];
+ const limiteInt = Number.parseInt(String(limite));
+const offsetInt = Number.parseInt(String(offset));
 
-  const [rows] = await pool.execute<RowDataPacket[]>(
-    `SELECT * FROM reservas ${where} ORDER BY fecha ASC, hora_inicio ASC LIMIT ? OFFSET ?`,
-    params
-  );
+const [rows] = await pool.execute<RowDataPacket[]>(
+    `SELECT * FROM reservas ${where} ORDER BY fecha ASC, hora_inicio ASC LIMIT ${limiteInt} OFFSET ${offsetInt}`,
+    valores
+);
 
   return {
     datos: rows as Reserva[],
